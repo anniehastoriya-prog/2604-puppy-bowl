@@ -195,3 +195,34 @@ function NewPlayerForm() {
   return $form;
 }
 // -- Render
+function render() {
+  const $app = document.querySelector("#app");
+  $app.innerHTML = `
+    <h1>Party Planner</h1>
+    <main>
+      <section>
+        <h2>Upcoming Parties</h2>
+        <PartyList></PartyList>
+        <h3>Add a new party</h3>
+        <NewPartyForm></NewPartyForm>
+      </section>
+      <section id="selected">
+        <h2>Party Details</h2>
+        <SelectedParty></SelectedParty>
+      </section>
+    </main>
+  `;
+
+  $app.querySelector("PartyList").replaceWith(PartyList());
+  $app.querySelector("NewPartyForm").replaceWith(NewPartyForm());
+  $app.querySelector("SelectedParty").replaceWith(SelectedParty());
+}
+
+async function init() {
+  await getParties();
+  await getRsvps();
+  await getGuests();
+  render();
+}
+
+init();
