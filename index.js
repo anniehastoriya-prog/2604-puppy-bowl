@@ -135,6 +135,63 @@ function selectedPlayer() {
   
   `;
   $player.querySelector("PlayerList").replaceWith(PlayerList());
-}
 
+  const $delete = $player.querySelector("button");
+  $delete.addEventListener("click", () => deletePlayer(selectedPlayer.id));
+
+  return $party;
+}
+function PlayerList() {
+  const $ul = document.createElement("ul");
+  const playersOnTeam = players.filter((player) =>
+    rsvps.find(
+      (roster) =>
+        roster.playerId === player.id && roster.eventId === selectedPlayer.id,
+    ),
+  );
+}
+const $playerss = playersOnTeam.map((player) => {
+  const $player = document.createElement("li");
+  $player.textContent = player.name;
+  return $player;
+});
+$ul.replaceChildren(...$players);
+
+return $ul;
+
+function NewPlayerForm() {
+  const $form = document.createElement("form");
+  $form.innerHTML = `
+    <label>
+      Name
+      <input name="name" required />
+    </label>
+    <label>
+     Breed
+      <input name="breed" required />
+    </label>
+    <label>
+     Status
+      <input name="status" type="Status" required />
+    </label>
+    <label>
+      Imaage URL
+      <input name="imageUrl" type="url" required />
+    </label>
+    <button>Add party</button>
+  `;
+  $form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData($form);
+    const date = new Date(data.get("date")).toISOString();
+    addParty({
+      name: data.get("name"),
+      breed: data.get("breed"),
+      status,
+      imageUrl: data.get("imageUrl"),
+    });
+  });
+
+  return $form;
+}
 // -- Render
