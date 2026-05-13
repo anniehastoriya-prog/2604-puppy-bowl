@@ -92,9 +92,49 @@ function PlayerListItem(player) {
   }
 
   $li.innerHTML = `
-    <a href="#selected">${player.name}</a>
+    <a href="#selected">
+    <img alt = "${player.name}" src "${player.ImageUrl}" />
+    
+    ${player.name}</a>
+    
   `;
   $li.addEventListener("click", () => getPlayer(player.id));
   return $li;
 }
+
+/** A list of names of all parties */
+function PlayersList() {
+  const $ul = document.createElement("ul");
+  $ul.classList.add("players");
+
+  const $players = players.map(PlayerListItem);
+  // replaces everything inside an element, and removes the other children previously
+  $ul.replaceChildren(...$players);
+
+  return $ul;
+}
+
+function selectedPlayer() {
+  if (!selectedPlayer) {
+    const $p = document.createElement("p");
+    $p.textContent = "Please select a party to learn more.";
+    return $p;
+  }
+
+  const $party = document.createElement("section");
+  $party.innerHTML = `
+    <h3>${selectedPlayer.name} #${selectedPlayer.id}</h3>
+    <time datetime="${selectedPlayer.date}">
+      ${selectedPlayer.date.slice(0, 10)}
+    </time>
+    <address>${selectedPlayer.location}</address>
+    <p>${selectedPlayer.description}</p>
+    <GuestList></GuestList>
+    <button>Delete party</button>
+    
+  
+  `;
+  $player.querySelector("PlayerList").replaceWith(PlayerList());
+}
+
 // -- Render
