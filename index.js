@@ -1,43 +1,38 @@
 // === Constants ===
 const BASE = "https://fsa-puppy-bowl.herokuapp.com/api";
-const COHORT = "/2604-ANNIE"; // Make sure to change this!
+const COHORT = "/2406-ANNIE";
 const API = BASE + COHORT;
-// Get all the players
-// the Post Function to invite the new player
-// Get the player by their ID
-// Use the Delete Function to reove a player by ID
-/**{
-  "name": "Crumpet",
-  "breed": "American Staffordshire Terrier",
-  "status": "bench",
-  "imageUrl": "http://r.ddmcdn.com/w_1012/s_f/o_1/cx_0/cy_0/cw_1012/ch_1518/APL/uploads/2019/12/Crumpet-PBXVI.jpg",
-  "teamId": 456
-}*/
 
-//-- State
-// declared three variables players, selectedPlayers and teams. Using declaration let because they variable values will change.
+// ===STATE===
+// Since we are going to be changing their values later, the declaration needed is let
 let players = [];
-let selectedPlayers = [];
+let selectedPlayer;
 let teams = [];
-// Updates the state with all the puppies from the API.
-// using the async function because we want to make a request from the internet from the url.
-//
+
+// Updates the state with all the puppies from the API
+// Because we are making a request that takes time to respond, our function must be asynchronous
 async function getPlayers() {
+  // Since we are working with a Promise, we have to try making the request
   try {
+    // The term `await` means wait for the promise to resolve
+    // The term `fetch` means make GET request to specified path
     const response = await fetch(API + "/players");
+    // After the resoponse comes back, I have parse the JSON into an actual object
     const result = await response.json();
-    players = result.data;
+    players = result.data.players;
     render();
   } catch (e) {
     console.error(e);
   }
 }
-///** Updates state with a single player from the API */
+
 async function getPlayer(id) {
   try {
     const response = await fetch(API + "/players/" + id);
     const result = await response.json();
-    selectedPlayers = result.data;
+
+    selectedPlayer = result.data.player;
+
     render();
   } catch (e) {
     console.error(e);
@@ -46,15 +41,15 @@ async function getPlayer(id) {
 
 async function getTeams() {
   try {
-    const response = await fetch(API + "/team");
+    const response = await fetch(API + "/teams");
     const result = await response.json();
-    teams = result.data;
+    teams = result.data.teams;
     render();
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 }
-// for people to add info about the puppies.
+
 async function addPlayer(player) {
   try {
     await fetch(API + "/players", {
@@ -72,7 +67,7 @@ async function addPlayer(player) {
 
 async function deletePlayer(id) {
   try {
-    await fetch(API + "/player/" + id, {
+    await fetch(API + "/players/" + id, {
       method: "DELETE",
     });
     selectedPlayer = undefined;
@@ -82,7 +77,7 @@ async function deletePlayer(id) {
   }
 }
 
-//-- Componets
+// ===COMPONENTS===
 
 function PlayerListItem(player) {
   const $li = document.createElement("li");
@@ -93,71 +88,60 @@ function PlayerListItem(player) {
 
   $li.innerHTML = `
     <a href="#selected">
-    <img alt = "${player.name}" src "${player.ImageUrl}" />
-    
-    ${player.name}</a>
-    
-  `;
+        <img alt="${player.name}" src="${player.imageUrl}" width=25 />
+        ${player.name}</a>
+    `;
   $li.addEventListener("click", () => getPlayer(player.id));
   return $li;
 }
 
-/** A list of names of all parties */
-function PlayersList() {
+function PlayerList() {
   const $ul = document.createElement("ul");
   $ul.classList.add("players");
 
   const $players = players.map(PlayerListItem);
-  // replaces everything inside an element, and removes the other children previously
   $ul.replaceChildren(...$players);
 
   return $ul;
 }
 
-function selectedPlayer() {
+function SelectedPlayer() {
   if (!selectedPlayer) {
     const $p = document.createElement("p");
-    $p.textContent = "Please select a party to learn more.";
+    $p.textContent = "Select a player to learn more about them.";
     return $p;
   }
 
-  const $party = document.createElement("section");
-  $party.innerHTML = `
-    <h3>${selectedPlayer.name} #${selectedPlayer.id}</h3>
-    <time datetime="${selectedPlayer.date}">
-      ${selectedPlayer.date.slice(0, 10)}
-    </time>
-    <address>${selectedPlayer.location}</address>
-    <p>${selectedPlayer.description}</p>
-    <GuestList></GuestList>
-    <button>Delete party</button>
-    
-  
-  `;
-  $player.querySelector("PlayerList").replaceWith(PlayerList());
+  const $player = document.createElement("section");
 
-  const $delete = $player.querySelector("button");
-  $delete.addEventListener("click", () => deletePlayer(selectedPlayer.id));
+  $player.innerHTML = `
+  <img
+    src="${selectedPlayer.imageUrl}"
+    alt="${selectedPlayer.name}"
+    width="250"
+  />
 
-  return $party;
-}
-function PlayerList() {
-  const $ul = document.createElement("ul");
-  const playersOnTeam = players.filter((player) =>
-    rsvps.find(
-      (roster) =>
-        roster.playerId === player.id && roster.eventId === selectedPlayer.id,
-    ),
-  );
-}
-const $playerss = playersOnTeam.map((player) => {
-  const $player = document.createElement("li");
-  $player.textContent = player.name;
+  <h3>${selectedPlayer.name}</h3>
+
+  <p><strong>ID:</strong> ${selectedPlayer.id}</p>
+
+  <p><strong>Breed:</strong> ${selectedPlayer.breed}</p>
+
+  <p><strong>Status:</strong> ${selectedPlayer.status}</p>
+
+  <button id="delete-player">
+    Delete Player
+  </button>
+`;
+
+  const $delete = $player.querySelector("#delete-player");
+
+  $delete.addEventListener("click", async () => {
+    await deletePlayer(selectedPlayer.id);
+  });
+
   return $player;
-});
-$ul.replaceChildren(...$players);
-
-return $ul;
+}
 
 function NewPlayerForm() {
   const $form = document.createElement("form");
@@ -167,61 +151,60 @@ function NewPlayerForm() {
       <input name="name" required />
     </label>
     <label>
-     Breed
+      Breed
       <input name="breed" required />
     </label>
     <label>
-     Status
-      <input name="status" type="Status" required />
+      Status
+      <input name="status" required />
     </label>
     <label>
-      Imaage URL
+      Image URL
       <input name="imageUrl" type="url" required />
     </label>
-    <button>Add party</button>
+    <button>Add Player</button>
   `;
   $form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData($form);
-    const date = new Date(data.get("date")).toISOString();
-    addParty({
+    addPlayer({
       name: data.get("name"),
       breed: data.get("breed"),
-      status,
+      status: data.get("status"),
       imageUrl: data.get("imageUrl"),
     });
   });
 
   return $form;
 }
-// -- Render
+
+// ===RENDER===
 function render() {
   const $app = document.querySelector("#app");
   $app.innerHTML = `
-    <h1>Party Planner</h1>
+    <h1>Puppy Bowl</h1>
     <main>
       <section>
-        <h2>Upcoming Parties</h2>
-        <PartyList></PartyList>
-        <h3>Add a new party</h3>
-        <NewPartyForm></NewPartyForm>
+        <h2>Players</h2>
+        <PlayerList></PlayerList>
+        <h3>Add a new player</h3>
+        <NewPlayerForm></NewPlayerForm>
       </section>
       <section id="selected">
-        <h2>Party Details</h2>
-        <SelectedParty></SelectedParty>
+        <h2>Player Details</h2>
+        <SelectedPlayer></SelectedPlayer>
       </section>
     </main>
   `;
 
-  $app.querySelector("PartyList").replaceWith(PartyList());
-  $app.querySelector("NewPartyForm").replaceWith(NewPartyForm());
-  $app.querySelector("SelectedParty").replaceWith(SelectedParty());
+  $app.querySelector("PlayerList").replaceWith(PlayerList());
+  $app.querySelector("NewPlayerForm").replaceWith(NewPlayerForm());
+  $app.querySelector("SelectedPlayer").replaceWith(SelectedPlayer());
 }
 
 async function init() {
-  await getParties();
-  await getRsvps();
-  await getGuests();
+  await getPlayers();
+  await getTeams();
   render();
 }
 
