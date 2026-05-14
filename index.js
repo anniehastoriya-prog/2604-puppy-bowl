@@ -19,12 +19,13 @@ const API = BASE + COHORT;
 // Declared three variables players, selectedPlayers and teams.
 // Using declaration let because they variable values will change.
 // In the state we start with the async function because we are calling or needing to talk to the open soucre that is the API.
-// Since we don't know how long the API will take to respond we use the async/await.
+// Since we don't know how long the API will take to respond we use the async/await. This includes the fetch .. catch. fetches
+// information from the API and catches to protect it from getting errors.
 let players = [];
 let selectedPlayer;
 let teams = [];
 
-// Updates state with all palayers from the API
+// Updates state with all players  from the API
 
 async function getPlayers() {
   try {
@@ -160,7 +161,7 @@ function SelectedPlayer() {
   return $player;
 }
 // Let the user put in all the information about the player
-// The HTML Element form is created  where boxes of Name, Breed, Status, and Image are labeled.
+// The HTML Element form is created where boxes of Name, Breed, Status, and Image are labeled.
 function NewPlayerForm() {
   const $form = document.createElement("form");
   $form.innerHTML = `
