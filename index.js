@@ -3,21 +3,32 @@ const BASE = "https://fsa-puppy-bowl.herokuapp.com/api";
 const COHORT = "/2406-ANNIE";
 const API = BASE + COHORT;
 
-// ===STATE===
-// Since we are going to be changing their values later, the declaration needed is let
+// ~State
+// Get all the players
+// the Post Function to invite the new player
+// Get the player by their ID
+// Use the Delete Function to reove a player by ID
+/**{
+  "name": "Crumpet",
+  "breed": "American Staffordshire Terrier",
+  "status": "bench",
+  "imageUrl": "http://r.ddmcdn.com/w_1012/s_f/o_1/cx_0/cy_0/cw_1012/ch_1518/APL/uploads/2019/12/Crumpet-PBXVI.jpg",
+  "teamId": 456
+}*/
+
+// Declared three variables players, selectedPlayers and teams.
+// Using declaration let because they variable values will change.
+// In the state we start with the async function because we are calling or needing to talk to the open soucre that is the API.
+// Since we don't know how long the API will take to respond we use the async/await.
 let players = [];
 let selectedPlayer;
 let teams = [];
 
-// Updates the state with all the puppies from the API
-// Because we are making a request that takes time to respond, our function must be asynchronous
+// Updates state with all palayers from the API
+
 async function getPlayers() {
-  // Since we are working with a Promise, we have to try making the request
   try {
-    // The term `await` means wait for the promise to resolve
-    // The term `fetch` means make GET request to specified path
     const response = await fetch(API + "/players");
-    // After the resoponse comes back, I have parse the JSON into an actual object
     const result = await response.json();
     players = result.data.players;
     render();
@@ -25,6 +36,7 @@ async function getPlayers() {
     console.error(e);
   }
 }
+// Updates state with a single player from the API
 
 async function getPlayer(id) {
   try {
@@ -38,7 +50,7 @@ async function getPlayer(id) {
     console.error(e);
   }
 }
-
+// Updates state with all Teams from the API
 async function getTeams() {
   try {
     const response = await fetch(API + "/teams");
@@ -49,7 +61,7 @@ async function getTeams() {
     console.log(e);
   }
 }
-
+// Fetching to the API to create a player
 async function addPlayer(player) {
   try {
     await fetch(API + "/players", {
@@ -64,7 +76,7 @@ async function addPlayer(player) {
     console.error(e);
   }
 }
-
+// Allows to delete the player with the given ID with the info fetching from the API
 async function deletePlayer(id) {
   try {
     await fetch(API + "/players/" + id, {
@@ -77,8 +89,11 @@ async function deletePlayer(id) {
   }
 }
 
-// ===COMPONENTS===
+// ~Components
 
+// Building a single player list item. With this function it will check if the player is selected. The player's id should
+// Match with the selectedPlayer's ID. Then we have the HTML element li to make the list for the selectedPlayers
+// addEventListener is used for the user to click for the user details.
 function PlayerListItem(player) {
   const $li = document.createElement("li");
 
@@ -94,7 +109,7 @@ function PlayerListItem(player) {
   $li.addEventListener("click", () => getPlayer(player.id));
   return $li;
 }
-
+// When the player is clicked it will show more details aboout the individual player.
 function PlayerList() {
   const $ul = document.createElement("ul");
   $ul.classList.add("players");
@@ -104,14 +119,16 @@ function PlayerList() {
 
   return $ul;
 }
-
+//This will show detailed information about the selected players,
+// it will present the line "Select a player to learn about them" with the created HTML element <p>
 function SelectedPlayer() {
   if (!selectedPlayer) {
     const $p = document.createElement("p");
     $p.textContent = "Select a player to learn more about them.";
     return $p;
   }
-
+  // This section here will show on the side for the Player Details, user will see the image at the top and rest of the info below
+  // The last part will be a button to delete the player.
   const $player = document.createElement("section");
 
   $player.innerHTML = `
@@ -133,7 +150,7 @@ function SelectedPlayer() {
     Delete Player
   </button>
 `;
-
+  // Added an addEventListerner for the user to click on the button to make the player deleted.
   const $delete = $player.querySelector("#delete-player");
 
   $delete.addEventListener("click", async () => {
@@ -142,7 +159,8 @@ function SelectedPlayer() {
 
   return $player;
 }
-
+// Let the user put in all the information about the player
+// The HTML Element form is created  where boxes of Name, Breed, Status, and Image are labeled.
 function NewPlayerForm() {
   const $form = document.createElement("form");
   $form.innerHTML = `
@@ -164,6 +182,8 @@ function NewPlayerForm() {
     </label>
     <button>Add Player</button>
   `;
+  // Once user has put the info this lets them submit the form with the addEventListener with Submit event.
+  // Also includes the list of item they are submiting.
   $form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData($form);
@@ -178,7 +198,11 @@ function NewPlayerForm() {
   return $form;
 }
 
-// ===RENDER===
+// ~Render
+// shows what the final page will look like with Puppy Bowl text at the top for h1
+// then shows the different sections, the Players and the Player Details
+// Then the Player list with the puppies showing and to the right of it
+// the selected puppy with the image and their info included.
 function render() {
   const $app = document.querySelector("#app");
   $app.innerHTML = `
@@ -196,6 +220,7 @@ function render() {
       </section>
     </main>
   `;
+  //
 
   $app.querySelector("PlayerList").replaceWith(PlayerList());
   $app.querySelector("NewPlayerForm").replaceWith(NewPlayerForm());

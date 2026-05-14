@@ -27,7 +27,8 @@ main {
 
 .players a {
   display: block;
-  border: 1px solid #ccc;
+  border: 3px dotted #000000;
+
   border-radius: 0.25rem;
   padding: 1ch;
   text-decoration: none;
@@ -52,4 +53,8 @@ form {
 
 label {
   display: grid;
+}
+
+img {
+  border-radius: 0.5rem;
 }
